@@ -19,8 +19,8 @@ DEPENDS = "bison flex"
 SRC_URI = "https://acpica.org/sites/acpica/files/acpica-unix2-${PV}.tar.gz \
     file://no-werror.patch \
     "
-SRC_URI[md5sum] = "2bc4a7ccc82de9df9fa964f784ecb29c"
-SRC_URI[sha256sum] = "61204ec56d71bc9bfa2ee2ade4c66f7e8541772ac72ef8ccc20b3f339cc96374"
+SRC_URI[md5sum] = "44a36d5ac3faaaca4b0c0df6c14f9e93"
+SRC_URI[sha256sum] = "63b4ac59a3a65833cae2c884eecb76e375d79b9af05a136eb804277a75695767"
 
 S = "${WORKDIR}/acpica-unix2-${PV}"
 
