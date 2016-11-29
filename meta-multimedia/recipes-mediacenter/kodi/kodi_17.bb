@@ -93,8 +93,8 @@ ACCEL_x86 = "vaapi vdpau"
 ACCEL_x86-64 = "vaapi vdpau"
 
 PACKAGECONFIG ??= "${ACCEL}"
-PACKAGECONFIG_append += "${@bb.utils.contains('DISTRO_FEATURES', 'x11', ' x11', '', d)}"
-PACKAGECONFIG_append += "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', ' opengl', ' openglesv2', d)}"
+PACKAGECONFIG_append = "${@bb.utils.contains('DISTRO_FEATURES', 'x11', ' x11', '', d)}"
+PACKAGECONFIG_append = "${@bb.utils.contains('DISTRO_FEATURES', 'opengl', ' opengl', ' openglesv2', d)}"
 
 PACKAGECONFIG[opengl] = "--enable-gl,--enable-gles,"
 PACKAGECONFIG[openglesv2] = "--enable-gles,--enable-gl,virtual/egl"
@@ -109,6 +109,10 @@ PACKAGECONFIG[lcms] = "--enable-lcms2,--disable-lcms2,lcms"
 EXTRA_OECONF_append_rpi = " --disable-openmax --enable-player=omxplayer --with-platform=raspberry-pi2"
 EXTRA_OECONF_remove_aarch64 = "--with-platform=raspberry-pi2"
 LDFLAGS_append_rpi = " -lvchostif "
+
+# kodi on rpi does not work with x11 support enabled
+PACKAGECONFIG_remove_rpi = "x11"
+
 EXTRA_OECONF = " \
     --disable-debug \
     --disable-libcap \
