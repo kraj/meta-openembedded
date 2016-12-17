@@ -22,7 +22,7 @@ FILES_${PN}-fsck = "${base_sbindir}/fsck.xfs"
 FILES_${PN}-mkfs = "${base_sbindir}/mkfs.xfs"
 FILES_${PN}-repair = "${base_sbindir}/xfs_repair"
 
-FILES_libhandle = "${base_libdir}/libhandle${SOLIBS}"
+FILES_libhandle = "${libdir}/libhandle${SOLIBS}"
 
 EXTRA_OECONF = "--enable-gettext=no \
                 INSTALL_USER=root \
@@ -40,7 +40,7 @@ PACKAGECONFIG[blkid] = "--enable-blkid=yes,--enable-blkid=no,util-linux"
 
 export DEBUG="-DNDEBUG"
 
-EXTRA_OEMAKE = "DIST_ROOT='${D}'"
+#EXTRA_OEMAKE = "DIST_ROOT='${D}'"
 
 do_configure_prepend () {
     export BUILD_CC="${BUILD_CC} ${BUILD_CFLAGS}"
@@ -54,3 +54,5 @@ do_configure_prepend () {
 do_install_append() {
         oe_runmake 'DESTDIR=${D}' install install-dev
 }
+
+PARALLEL_MAKEINST = ""

@@ -1,3 +1,9 @@
+use libtool to package install.  do not use the manual file install as
+that'll copy files directly from the .libs/ subdir which might have rpaths
+pointing to build area.
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+
 Index: xfsprogs-4.8.0/libxcmd/Makefile
 ===================================================================
 --- xfsprogs-4.8.0.orig/libxcmd/Makefile
@@ -37,11 +43,28 @@ Index: xfsprogs-4.8.0/libxfs/Makefile
  
  install-headers: $(addsuffix -hdrs, $(PKGHFILES))
  
+@@ -144,6 +145,7 @@ install-headers: $(addsuffix -hdrs, $(PK
+ 	$(Q)$(LN_S) -f $(CURDIR)/$* $(TOPDIR)/include/xfs/$*
+ 
+ install-dev: install
++	$(INSTALL_LTLIB_DEV)
+ 	$(INSTALL) -m 644 $(PKGHFILES) $(PKG_INC_DIR)
+ 
+ # We need to install the headers before building the dependencies.  If we
 Index: xfsprogs-4.8.0/libxlog/Makefile
 ===================================================================
 --- xfsprogs-4.8.0.orig/libxlog/Makefile
 +++ xfsprogs-4.8.0/libxlog/Makefile
-@@ -19,6 +19,10 @@ default: ltdepend $(LTLIBRARY)
+@@ -12,6 +12,8 @@ LT_AGE = 0
+ 
+ CFILES = xfs_log_recover.c util.c
+ 
++LTLIBS = $(LIBUUID) $(LIBXFS)
++
+ # don't want to link xfs_repair with a debug libxlog.
+ DEBUG = -DNDEBUG
+ 
+@@ -19,6 +21,10 @@ default: ltdepend $(LTLIBRARY)
  
  include $(BUILDRULES)
  
@@ -53,3 +76,54 @@ Index: xfsprogs-4.8.0/libxlog/Makefile
 +	$(INSTALL_LTLIB_DEV)
  
  -include .ltdep
+Index: xfsprogs-4.8.0/include/buildmacros
+===================================================================
+--- xfsprogs-4.8.0.orig/include/buildmacros
++++ xfsprogs-4.8.0/include/buildmacros
+@@ -70,18 +70,9 @@ endif
+ # /usr/lib.
+ ifeq ($(ENABLE_SHARED),yes)
+ INSTALL_LTLIB_DEV = \
+-	cd $(TOPDIR)/$(LIBNAME)/.libs; \
+-	../$(INSTALL) -m 755 -d $(PKG_LIB_DIR); \
+-	../$(INSTALL) -m 644 -T old_lib $(LIBNAME).lai $(PKG_LIB_DIR); \
+-	../$(INSTALL) -m 644 $(LIBNAME).lai $(PKG_LIB_DIR)/$(LIBNAME).la ; \
+-	../$(INSTALL) -m 755 -d $(PKG_ROOT_LIB_DIR); \
+-	../$(INSTALL) -T so_base $(LIBNAME).lai $(PKG_ROOT_LIB_DIR); \
+-	if [ "x$(shell readlink -f $(PKG_LIB_DIR))" != \
+-	     "x$(shell readlink -f $(PKG_ROOT_LIB_DIR))" ]; then \
+-		../$(INSTALL) -S $(PKG_LIB_DIR)/$(LIBNAME).a $(PKG_ROOT_LIB_DIR)/$(LIBNAME).a; \
+-		../$(INSTALL) -S $(PKG_LIB_DIR)/$(LIBNAME).la $(PKG_ROOT_LIB_DIR)/$(LIBNAME).la; \
+-		../$(INSTALL) -S $(PKG_ROOT_LIB_DIR)/$(LIBNAME).so $(PKG_LIB_DIR)/$(LIBNAME).so; \
+-	fi
++	set -e; cd $(TOPDIR)/$(LIBNAME); \
++	$(INSTALL) -m 755 -d $(PKG_LIB_DIR); \
++	env -uDIST_ROOT $(LTINSTALL) $(TOPDIR)/$(LIBNAME)/$(LIBNAME).la $(DIST_ROOT)$(PKG_LIB_DIR)/$(LIBNAME).la
+ else
+ INSTALL_LTLIB_DEV = $(INSTALL_LTLIB_STATIC)
+ endif
+Index: xfsprogs-4.8.0/Makefile
+===================================================================
+--- xfsprogs-4.8.0.orig/Makefile
++++ xfsprogs-4.8.0/Makefile
+@@ -83,6 +83,8 @@ quota: libxcmd
+ repair: libxlog libxcmd
+ copy: libxlog
+ mkfs: libxcmd
++libxlog: libxfs
++libxlog-install-dev: libxfs-install-dev
+ 
+ ifeq ($(HAVE_BUILDDEFS), yes)
+ include $(BUILDRULES)
+Index: xfsprogs-4.8.0/libhandle/Makefile
+===================================================================
+--- xfsprogs-4.8.0.orig/libhandle/Makefile
++++ xfsprogs-4.8.0/libhandle/Makefile
+@@ -24,7 +24,6 @@ default: ltdepend $(LTLIBRARY)
+ include $(BUILDRULES)
+ 
+ install: default
+-	$(INSTALL_LTLIB)
+ 
+ install-dev: default
+ 	$(INSTALL_LTLIB_DEV)
