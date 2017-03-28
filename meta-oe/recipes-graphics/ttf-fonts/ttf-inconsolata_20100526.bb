@@ -13,13 +13,14 @@ S = "${WORKDIR}/ttf-inconsolata-${PV}"
 FILES_${PN} = "${datadir}/fonts/truetype/Inconsolata.ttf \
     ${datadir}/doc/ttf-inconsolata/*"
 
-do_configure() {
+deltask do_configure
+
+do_compile_prepend() {
     mv ${WORKDIR}/Inconsolata.otf ${S}/Inconsolata.ttf
 }
 
 do_install_append() {
-    install -d ${D}${datadir}/doc/ttf-inconsolata/
-    install -m 0644 ${WORKDIR}/OFL.txt ${D}${datadir}/doc/ttf-inconsolata/
+    install -D -m 0644 ${WORKDIR}/OFL.txt ${D}${datadir}/doc/ttf-inconsolata/OFL.txt
 }
 
 SRC_URI[md5sum] = "0fbe014c1f0fb5e3c71140ff0dc63edf"
