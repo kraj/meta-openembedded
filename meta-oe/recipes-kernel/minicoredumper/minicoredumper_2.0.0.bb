@@ -28,6 +28,7 @@ INITSCRIPT_NAME_${PN} = "minicoredumper"
 INITSCRIPT_PARAMS_${PN} = "defaults 89"
 
 do_install_append() {
+    rmdir ${D}${localstatedir}/run
     install -d ${D}/${sysconfdir}/minicoredumper
     cp -rf ${S}/etc/* ${D}/${sysconfdir}/
 
